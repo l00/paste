@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <title>bin</title>
+</head>
+<body>
+    <pre><code id="paste"></code></pre>
+    <p id="pasteInfo"></p>
+    <script>
+        async function outputPaste() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            let content;
+            const res = await fetch(`http://127.0.0.1:8000/get?id=${id}`);
+            const paste = document.getElementById('paste');
+            if (!res.ok) {
+                paste.innerHTML = `Error ${res.status}: ${res.statusText}`;
+                return;
+            }
+            content = await res.json();
+            paste.textContent = content.text;
+            hljs.highlightElement(paste);
+            pasteInfo.innerHTML = `<br>Author: ${content.author}<br>Views: ${content.views}<br>Created at: ${content.creation_time} (UTC)<br>ID: ${content.id}<br>`;
+            return;
+        }
+        outputPaste();
+    </script>
+    <button onclick="copyUrl()">Copy URL</button>
+    <script>
+        async function copyUrl() {
+            await navigator.clipboard.writeText(window.location);
+        }
+    </script>
+</body>
+</html>
